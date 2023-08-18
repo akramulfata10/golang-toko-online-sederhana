@@ -34,8 +34,15 @@ type DbConfig struct {
 	DBDriver string
 }
 
-func (server *Server) KoneksiDB(appConfig AppConfig, dbConfig DbConfig) {
+func (server *Server) Initialize(appConfig AppConfig, dbConfig DbConfig) {
 	fmt.Println("Welcome To " + appConfig.AppName)
+
+	server.initializeDB(dbConfig)
+	server.Router = mux.NewRouter()
+	server.initializeRoutes()
+}
+
+func (server *Server) initializeDB(dbConfig DbConfig){
 
 	var err error
 
@@ -48,12 +55,17 @@ func (server *Server) KoneksiDB(appConfig AppConfig, dbConfig DbConfig) {
 	}
 
 	if err != nil {
-		panic("Could not connect to database")
+		panic("Failed on connecting to the database server")
 	}
-	
-	server.Router = mux.NewRouter()
-	server.initializeRoutes()
-}
+
+	for _, model := range RegisterModels() {
+		err = server.DB.Debug().AutoMigrate(model.Model)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+} 
 
 func (server *Server) Run(address string) {
 	fmt.Printf("listening to port  %s", address)
@@ -88,6 +100,6 @@ func Run() {
 	dbConfig.DBPort = getEnv("DB_PORT", "5432")
 	dbConfig.DBDriver = getEnv("DB_DRIVER", "postgres")
 
-	server.KoneksiDB(appConfig, dbConfig)
+	server.Initialize(appConfig, dbConfig)
 	server.Run(":" + appConfig.AppPort)
 }
