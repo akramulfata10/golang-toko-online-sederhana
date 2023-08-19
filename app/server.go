@@ -5,10 +5,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"flag"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"github.com/joho/godotenv"
+	"github.com/urfave/cli"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 	"github.com/akramulfata10/gotoko/database/seeders"
@@ -38,9 +40,7 @@ type DbConfig struct {
 func (server *Server) Initialize(appConfig AppConfig, dbConfig DbConfig) {
 	fmt.Println("Welcome To " + appConfig.AppName)
 
-	server.initializeDB(dbConfig)
 	server.initializeRoutes()
-	seeders.DBSeed(server.DB)
 }
 
 func (server *Server) initializeDB(dbConfig DbConfig){
@@ -67,6 +67,52 @@ func (server *Server) initializeDB(dbConfig DbConfig){
 	}
 
 } 
+
+func (server *Server) dbMigrate() {
+	for _, model := range RegisterModels() {
+		err := server.DB.Debug().AutoMigrate(model.Model)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	fmt.Println("Database migrated successfully.")
+}
+
+
+func (server *Server) initCommands(config AppConfig, dbConfig DbConfig) {
+	server.initializeDB(dbConfig)
+
+	cmdApp := cli.NewApp()
+	cmdApp.Commands = []cli.Command{
+		{
+			Name: "db:migrate",
+			Action: func(c *cli.Context) error {
+				server.dbMigrate()
+				return nil
+			},
+		},
+		{
+			Name: "db:seed",
+			Action: func(c *cli.Context) error {
+				err := seeders.DBSeed(server.DB)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				return nil
+			},
+		},
+	}
+
+	err := cmdApp.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+
 
 func (server *Server) Run(address string) {
 	fmt.Printf("listening to port  %s", address)
@@ -101,6 +147,16 @@ func Run() {
 	dbConfig.DBPort = getEnv("DB_PORT", "5432")
 	dbConfig.DBDriver = getEnv("DB_DRIVER", "postgres")
 
-	server.Initialize(appConfig, dbConfig)
-	server.Run(":" + appConfig.AppPort)
+	flag.Parse()
+	arg := flag.Arg(0)
+
+	if arg != "" {
+		server.initCommands(appConfig, dbConfig)
+	} else {
+		server.Initialize(appConfig, dbConfig)
+		server.Run(":" + appConfig.AppPort)
+	}
+
+	// server.Initialize(appConfig, dbConfig)
+	// server.Run(":" + appConfig.AppPort)
 }
