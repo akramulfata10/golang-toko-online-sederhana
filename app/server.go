@@ -11,6 +11,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+	"github.com/akramulfata10/gotoko/database/seeders"
 
 )
 
@@ -38,8 +39,8 @@ func (server *Server) Initialize(appConfig AppConfig, dbConfig DbConfig) {
 	fmt.Println("Welcome To " + appConfig.AppName)
 
 	server.initializeDB(dbConfig)
-	server.Router = mux.NewRouter()
 	server.initializeRoutes()
+	seeders.DBSeed(server.DB)
 }
 
 func (server *Server) initializeDB(dbConfig DbConfig){
