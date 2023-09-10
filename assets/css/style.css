@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body, button, input, select, optgroup, textarea {
     font-family: 'Poppins', sans-serif;
 }
@@ -623,4 +624,9 @@ Products Page
     border-radius: 50px;
     line-height: 40px;
     display: inline-block;
+=======
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: darkslategrey;
+>>>>>>> d7c111a112f70f719ca912edeb2d438d4d53ae98
 }
