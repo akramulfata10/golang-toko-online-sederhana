@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"net/http"
-
+	"strconv"
 	"github.com/akramulfata10/gotoko/app/models"
 	"github.com/unrolled/render"
 )
@@ -12,13 +12,31 @@ func (server *Server) Products(w http.ResponseWriter, r *http.Request) {
 		Layout: "layout",
 	})
 
+	q := r.URL.Query()
+
+	page, _ := strconv.Atoi(q.GET("page"))
+	if page <= 0 {
+		page = 1
+	}
+
+	perPage := 9 
+	
+
 	productModel := models.Product{}
-	products, err := productModel.GetProducts(server.DB)
+	products, err := productModel.GetProducts(server.DB, perPage, page)
 	if err != nil {
 		return
 	}
 
+	pagination, _ := GetPaginationLinks(server.AppConfig, PaginationParams{
+		Path: "products",
+		TotalRows: int32(totalRows),
+		perPage: int32(perPage),
+		CurrentPage: int32(page)
+	})
+
 	_ = render.HTML(w, http.StatusOK, "products", map[string]interface{}{
 		"products": products,
+		"pagination" : pagination,
 	})
 }
