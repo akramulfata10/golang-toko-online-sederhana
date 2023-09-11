@@ -63,12 +63,17 @@ type PaginationParams struct {
 func (server *Server) Initialize(appConfig AppConfig, dbConfig DBConfig) {
 	fmt.Println("Welcome to " + appConfig.AppName)
 	server.initializeDB(dbConfig)
+	server.initializeAppConfig(appConfig)
 	server.initializeRoutes()
 }
 
 func (server *Server) Run(addr string) {
 	fmt.Printf("Listening to port %s", addr)
 	log.Fatal(http.ListenAndServe(addr, server.Router))
+}
+
+func (server *Server) initializeAppConfig(appConfig AppConfig) {
+	server.AppConfig = &appConfig
 }
 
 func (server *Server) initializeDB(dbConfig DBConfig) {
