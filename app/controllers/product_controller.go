@@ -57,8 +57,9 @@ func (server *Server) GetProductBySlug(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+  
+	_ = render.HTML(w, http.StatusOK, "product", map[string]interface{}{
 
-	_ = render.HTML(w, http.StatusOK, "", map[string]interface{}{
 		"product": product,
 	})
 
