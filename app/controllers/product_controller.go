@@ -8,7 +8,6 @@ import (
 	"github.com/unrolled/render"
 
 	"github.com/akramulfata10/gotoko/app/models"
-
 )
 
 func (server *Server) Products(w http.ResponseWriter, r *http.Request) {
@@ -58,8 +57,9 @@ func (server *Server) GetProductBySlug(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-
+  
 	_ = render.HTML(w, http.StatusOK, "product", map[string]interface{}{
+
 		"product": product,
 	})
 
