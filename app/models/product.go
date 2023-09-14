@@ -5,7 +5,6 @@ import (
 
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
-
 )
 
 type Product struct {
@@ -51,7 +50,7 @@ func (p *Product) FindBySlug(db *gorm.DB, slug string) (*Product, error) {
 	var err error
 	var product Product
 
-	err = db.Debug().Model(&Product{}).Where("slug = ?", slug).First(&product).Error
+	err = db.Debug().Preload("ProductImages").Model(&Product{}).Where("slug = ?", slug).First(&product).Error
 	if err != nil {
 		return nil, err
 	}

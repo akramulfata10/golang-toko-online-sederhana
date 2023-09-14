@@ -8,7 +8,6 @@ import (
 	"github.com/unrolled/render"
 
 	"github.com/akramulfata10/gotoko/app/models"
-
 )
 
 func (server *Server) Products(w http.ResponseWriter, r *http.Request) {
